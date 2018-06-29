@@ -256,6 +256,11 @@ var IssueList = function (_React$Component5) {
                 React.createElement(IssueFilter, null),
                 React.createElement('hr', null),
                 React.createElement(IssueTable, { issues: this.state.issues }),
+                React.createElement(
+                    'button',
+                    { onClick: this.createTestIssue },
+                    'Add'
+                ),
                 React.createElement('hr', null),
                 React.createElement(IssueAdd, null)
             );
