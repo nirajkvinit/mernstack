@@ -46,6 +46,7 @@ var IssueRow = function (_React$Component2) {
         key: 'render',
         value: function render() {
             var issue = this.props.issue;
+
             return React.createElement(
                 'tr',
                 null,
@@ -206,7 +207,10 @@ var IssueList = function (_React$Component5) {
         var _this5 = _possibleConstructorReturn(this, (IssueList.__proto__ || Object.getPrototypeOf(IssueList)).call(this));
 
         _this5.state = { issues: issues };
-        setTimeout(_this5.createTestIssue.bind(_this5), 2000);
+        // setTimeout(this.createTestIssue.bind(this), 2000);
+        //setTimeout(() => this.createTestIssue(), 2000);
+        _this5.createTestIssue = _this5.createTestIssue.bind(_this5);
+        setTimeout(_this5.createTestIssue, 2000);
         return _this5;
     }
 
