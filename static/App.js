@@ -57,7 +57,7 @@ var IssueRow = function (_React$Component2) {
                 React.createElement(
                     "td",
                     { style: borderedStyle },
-                    this.props.issue_title
+                    this.props.children
                 )
             );
         }
@@ -103,14 +103,22 @@ var IssueTable = function (_React$Component3) {
                 React.createElement(
                     "tbody",
                     null,
-                    React.createElement(IssueRow, {
-                        issue_id: 1,
-                        issue_title: "Error in console when clicking Add"
-                    }),
-                    React.createElement(IssueRow, {
-                        issue_id: 2,
-                        issue_title: "Missing bottom border on panel"
-                    })
+                    React.createElement(
+                        IssueRow,
+                        { issue_id: 1 },
+                        "Error in console when clicking Add"
+                    ),
+                    React.createElement(
+                        IssueRow,
+                        { issue_id: 2 },
+                        "Missing bottom ",
+                        React.createElement(
+                            "b",
+                            null,
+                            "border"
+                        ),
+                        " on panel"
+                    )
                 )
             );
         }
