@@ -6,3 +6,4 @@ export default class IssueFilter extends React.Component {
         );
     }
 }
+

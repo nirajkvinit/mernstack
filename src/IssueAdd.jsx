@@ -15,8 +15,8 @@ export default class IssueAdd extends React.Component {
             status: 'New',
             created: new Date(),
         });
-        form.owner.value = "";
-        form.title.value = "";
+        form.owner.value = '';
+        form.title.value = '';
     }
 
     render() {

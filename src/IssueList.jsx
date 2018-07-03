@@ -13,7 +13,7 @@ const IssueRow = (props) => (
         <td>{props.issue.completionDate ? props.issue.completionDate.toDateString() : ''}</td>
         <td>{props.issue.title}</td>
     </tr>
-)
+);
 
 function IssueTable(props) {
     const issueRows = props.issues.map(issue => <IssueRow key={issue._id} issue={issue} />);
@@ -38,7 +38,7 @@ function IssueTable(props) {
 export default class IssueList extends React.Component {
     constructor() {
         super();
-        this.state = {issues: []};
+        this.state = { issues: [] };
         this.createIssue = this.createIssue.bind(this);
     }
 
@@ -48,53 +48,52 @@ export default class IssueList extends React.Component {
 
     loadData() {
         fetch('/api/issues').then(response => {
-            if(response.ok) {
+            if (response.ok) {
                 response.json().then(data => {
-                    console.log("Total count of records:", data._metadata.total_count);
+                    console.log('Total count of records:', data._metadata.total_count);
                     data.records.forEach(issue => {
                         issue.created = new Date(issue.created);
-                        if(issue.completionDate) {
+                        if (issue.completionDate) {
                             issue.completionDate = new Date(issue.completionDate);
                         }
                     });
-                    this.setState({issues: data.records});
+                    this.setState({ issues: data.records });
                 });
             } else {
                 response.json().then(error => {
-                    alert("Failed to fetch issues: "+ error.message);
+                    alert(`Failed to fetch issues: ${error.message}`);
                 });
             }
         }).catch(err => {
-            alert("Error in fetching data from server: ", err);
+            alert('Error in fetching data from server: ', err);
         });
     }
 
     createIssue(newIssue) {
-        let stringifiedIssue = JSON.stringify(newIssue);
-        // console.log(stringifiedIssue);
+        const stringifiedIssue = JSON.stringify(newIssue);
 
         fetch('/api/issues', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: stringifiedIssue,
         }).then(response => {
-            if(response.ok) {
+            if (response.ok) {
                 response.json().then(updatedIssue => {
                     updatedIssue.created = new Date(updatedIssue.created);
-                    if(updatedIssue.completionDate) {
-                        updatedIssue.completionDate = new Date(updatedIssue.completionDate);                
+                    if (updatedIssue.completionDate) {
+                        updatedIssue.completionDate = new Date(updatedIssue.completionDate);
                     }
                     // console.log(updatedIssue);
                     const newIssues = this.state.issues.concat(updatedIssue);
-                    this.setState({issues: newIssues});
+                    this.setState({ issues: newIssues });
                 });
             } else {
                 response.json().then(error => {
-                    alert("Failed to add issue" + error.message);
+                    alert(`Failed to add issue ${error.message}`);
                 });
             }
         }).catch(err => {
-            console.log("Error in sending data to server: " + err.message);
+            console.log(`Error in sending data to server: ${err.message}`);
         });
     }
 
