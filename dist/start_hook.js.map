@@ -1,0 +1,1 @@
+{"version":3,"sources":["../server/start_hook.js"],"names":["require","presets"],"mappings":";;AAAAA,QAAQ,gBAAR,EAA0B;AACtBC,aAAS,CAAC,cAAD;AADa,CAA1B;;AAIAD,QAAQ,aAAR","file":"start_hook.js","sourcesContent":["require('babel-register')({\r\n    presets: ['es2015-node4']\r\n});\r\n\r\nrequire('./server.js');"]}
