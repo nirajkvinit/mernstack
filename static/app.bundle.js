@@ -376,7 +376,7 @@ webpackJsonp([0],{
 	            return _react2.default.createElement(
 	                'div',
 	                null,
-	                'This is a test placeholeder for the Issue Filter'
+	                'This is a placeholder for the Issue Filter'
 	            );
 	        }
 	    }]);
