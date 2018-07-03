@@ -22,6 +22,10 @@ webpackJsonp([0],{
 	var contentNode = document.getElementById('contents');
 	_reactDom2.default.render(_react2.default.createElement(_IssueList2.default, null), contentNode);
 
+	if (false) {
+	    module.hot.accept();
+	}
+
 /***/ },
 
 /***/ 25:
