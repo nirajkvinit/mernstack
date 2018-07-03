@@ -52,10 +52,22 @@ export default class IssueList extends React.Component {
         this.loadData();
     }
 
+    componentDidUpdate(prevProps) {
+        const oldQuery = prevProps.location.query;
+        const newQuery = this.props.location.query;
+
+        if (oldQuery.status === newQuery.status) {
+            return;
+        }
+        this.loadData();
+    }
+
     loadData() {
-        fetch('/api/issues').then(response => {
+        fetch(`/api/issues${this.props.location.search}`)
+        .then(response => {
             if (response.ok) {
-                response.json().then(data => {
+                response.json()
+                .then(data => {
                     console.log('Total count of records:', data._metadata.total_count);
                     data.records.forEach(issue => {
                         issue.created = new Date(issue.created);
@@ -66,11 +78,13 @@ export default class IssueList extends React.Component {
                     this.setState({ issues: data.records });
                 });
             } else {
-                response.json().then(error => {
+                response.json()
+                .then(error => {
                     alert(`Failed to fetch issues: ${error.message}`);
                 });
             }
-        }).catch(err => {
+        })
+        .catch(err => {
             alert('Error in fetching data from server: ', err);
         });
     }
@@ -82,9 +96,11 @@ export default class IssueList extends React.Component {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: stringifiedIssue,
-        }).then(response => {
+        })
+        .then(response => {
             if (response.ok) {
-                response.json().then(updatedIssue => {
+                response.json()
+                .then(updatedIssue => {
                     updatedIssue.created = new Date(updatedIssue.created);
                     if (updatedIssue.completionDate) {
                         updatedIssue.completionDate = new Date(updatedIssue.completionDate);
@@ -94,11 +110,13 @@ export default class IssueList extends React.Component {
                     this.setState({ issues: newIssues });
                 });
             } else {
-                response.json().then(error => {
+                response.json()
+                .then(error => {
                     alert(`Failed to add issue ${error.message}`);
                 });
             }
-        }).catch(err => {
+        })
+        .catch(err => {
             console.log(`Error in sending data to server: ${err.message}`);
         });
     }
@@ -116,3 +134,7 @@ export default class IssueList extends React.Component {
         );
     }
 }
+
+IssueList.propTypes = {
+    location: React.PropTypes.object.isRequired,
+};

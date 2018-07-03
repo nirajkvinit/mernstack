@@ -24,14 +24,22 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 _sourceMapSupport2.default.install();
 
-let dbConnection, db;
+let dbConnection;
+let db;
 
 const app = (0, _express2.default)();
 app.use(_express2.default.static('static'));
 app.use(_bodyParser2.default.json());
 
 app.get('/api/issues', (req, res) => {
-    db.collection('issues').find().toArray().then(issues => {
+    const filter = {};
+
+    if (req.query.status) {
+        filter.status = req.query.status;
+    }
+    console.log(filter);
+
+    db.collection('issues').find(filter).toArray().then(issues => {
         const metadata = { total_count: issues.length };
         res.json({ _metadata: metadata, records: issues });
     }).catch(error => {
@@ -53,10 +61,10 @@ app.post('/api/issues', (req, res) => {
         return;
     }
 
-    db.collection('issues').insertOne(newIssue).then(result => {
+    db.collection('issues').insertOne(_issue2.default.cleanupIssue(newIssue)).then(result => {
         db.collection('issues').find({ _id: result.insertedId }).limit(1).next();
     }).then(newissue => {
-        res.json(newIssue);
+        res.json(newissue);
     }).catch(error => {
         console.log('error');
         res.status(500).json({ message: `Internal Server Error ${error}` });
@@ -67,7 +75,7 @@ _mongodb.MongoClient.connect('mongodb://localhost').then(connection => {
     dbConnection = connection;
     db = dbConnection.db('issuetracker');
 
-    app.listen(3000, function () {
+    app.listen(3000, () => {
         console.log('App started on port 3000');
     });
 }).catch(error => {
