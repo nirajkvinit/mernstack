@@ -19,7 +19,7 @@ const App = (props) => (
         </div>
         <div className="footer">
             Full source code available at this
-             <a href="https://github.com/vasansr/pro-mern-stack">Github Repository</a>
+             &nbsp;<a href="https://github.com/vasansr/pro-mern-stack">Github Repository</a>
         </div>
     </div>
 );
@@ -30,8 +30,8 @@ App.propTypes = {
 
 const RoutedApp = () => (
     <Router history={browserHistory} >
-        <Redirect from="/" to="/issues" />
-        <Route path="/" component={App} >
+    <Redirect from="/" to="/issues" />
+        <Route path="/" component={App}>
             <Route path="/issues" component={withRouter(IssueList)} />
             <Route path="/issues/:id" component={IssueEdit} />
             <Route path="*" component={NoMatch} />
