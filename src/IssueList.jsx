@@ -63,6 +63,10 @@ export default class IssueList extends React.Component {
         this.loadData();
     }
 
+    setFilter(query) {
+        this.props.router.push({ pathname: this.props.location.pathname, query });
+    }
+
     loadData() {
         fetch(`/api/issues${this.props.location.search}`)
         .then(response => {
@@ -122,14 +126,9 @@ export default class IssueList extends React.Component {
         });
     }
 
-    setFilter(query) {
-        this.props.router.push({ pathname: this.props.location.pathname, query });
-    }
-
     render() {
         return (
             <div>
-                <h1>Issue Tracker</h1>
                 <IssueFilter setFilter={this.setFilter} />
                 <hr />
                 <IssueTable issues={this.state.issues} />
