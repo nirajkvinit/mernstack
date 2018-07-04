@@ -2,6 +2,7 @@ import 'babel-polyfill';
 import express from 'express';
 import bodyParser from 'body-parser';
 import { MongoClient } from 'mongodb';
+import path from 'path';
 import Issue from './issue.js';
 import SourceMapSupport from 'source-map-support';
 
@@ -70,4 +71,8 @@ MongoClient.connect('mongodb://localhost').then(connection => {
 })
 .catch(error => {
     console.log('ERROR:', error);
+});
+
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve('static/index.html'));
 });
