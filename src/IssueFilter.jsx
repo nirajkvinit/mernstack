@@ -73,23 +73,6 @@ export default class IssueFilter extends React.Component {
         this.props.setFilter({});
     }
 
-    /*
-    setFilterOpen(e) {
-        e.preventDefault();
-        this.props.setFilter({ status: 'Open' });
-    }
-
-    setFilterAssigned(e) {
-        e.preventDefault();
-        this.props.setFilter({ status: 'Assigned' });
-    }
-
-    clearFilter(e) {
-        e.preventDefault();
-        this.props.setFilter({});
-    }*/
-
-
     render() {
         // const Seperator = () => <span> | </span>;
         return (

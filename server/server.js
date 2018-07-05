@@ -10,6 +10,7 @@ SourceMapSupport.install();
 
 let dbConnection;
 let db;
+const ObjectId = require('mongodb').ObjectId;
 
 const app = express();
 app.use(express.static('static'));
