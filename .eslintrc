@@ -3,6 +3,7 @@
     "rules": {
         "indent": 0,
         "react/jsx-indent": 0,
+        "react/jsx-indent-props": 0,
         "no-alert": ["off"],
         "no-console": ["off"],
         "no-param-reassign": ["error", { "props": false }],
