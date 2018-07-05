@@ -19,7 +19,7 @@ export default class DateInput extends React.Component {
         this.setState({ focused: true });
     }
 
-    onBlur() {
+    onBlur(e) {
         const value = this.unformat(this.state.value);
         const valid = this.state.value === '' || value != null;
         if (valid !== this.state.valid && this.props.onValidityChange) {
@@ -47,7 +47,7 @@ export default class DateInput extends React.Component {
 
     unformat(str) {
         const val = new Date(str);
-        return isNaN(val.gerTime()) ? null : val;
+        return isNaN(val.getTime()) ? null : val;
     }
 
     render() {

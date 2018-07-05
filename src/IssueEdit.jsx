@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import NumInput from './NumInput.jsx';
+import DateInput from './DateInput.jsx';
 
 export default class IssueEdit extends React.Component { // eslint-disable-line
     constructor() {
@@ -8,10 +9,12 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
         this.state = {
             issue: {
                 _id: '', title: '', status: '', owner: '', effort: null,
-                completionDate: '', created: '',
+                completionDate: null, created: '',
             },
+            invalidFields: {},
         };
         this.onChange = this.onChange.bind(this);
+        this.onValidityChange = this.onValidityChange.bind(this);
     }
 
     componentDidMount() {
@@ -22,6 +25,16 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
         if (prevProps.params.id !== this.props.params.id) {
             this.loadData();
         }
+    }
+
+    onValidityChange(event, valid) {
+        const invalidFields = Object.assign({}, this.state.invalidField);
+        if (!valid) {
+            invalidFields[event.target.name] = true;
+        } else {
+            delete invalidFields[event.target.name];
+        }
+        this.setState({ invalidFields });
     }
 
     onChange(event, convertedValue) {
@@ -39,7 +52,7 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
                 .then(issue => {
                     issue.created = new Date(issue.created).toDateString();
                     issue.completionDate = issue.completionDate != null ?
-                      new Date(issue.completionDate).toDateString() : '';
+                      new Date(issue.completionDate) : null;
                     issue.effort = issue.effort != null ? issue.effort.toString() : '';
                     this.setState({ issue });
                 });
@@ -57,6 +70,9 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
 
     render() {
         const issue = this.state.issue;
+        const validationMessage = Object.keys(this.state.invalidFields).length
+            === 0 ? null
+            : (<div className="error">Please correct invalid fields before submitting.</div>);
         return (
             <div>
                 <form>
@@ -78,10 +94,19 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
                     <br />
                     Effort: <NumInput size={5} name="effort" value={issue.effort} onChange={this.onChange} />
                     <br />
-                    Completion Date: <input name="completionDate" value={issue.completionDate} onChange={this.onChange} />
+                    Completion Date:
+                    &nbsp;<DateInput
+                        name="completionDate" value={issue.completionDate} onChange={this.onChange}
+                        onValidityChange={this.onValidityChange}
+                    />
                     <br />
-                    Title: <input name="title" size={50} value={issue.title} onChange={this.onChange} />
+                    Title:
+                    &nbsp;<input
+                        name="title"
+                        size={50} value={issue.title} onChange={this.onChange}
+                    />
                     <br />
+                    {validationMessage}
                     <button type="submit">Submit</button>
                     &nbsp;<Link to="/issues">Back to issue list</Link>
                 </form>
