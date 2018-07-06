@@ -16,30 +16,6 @@ const app = express();
 app.use(express.static('static'));
 app.use(bodyParser.json());
 
-app.get('/api/issues/:id', (req, res) => {
-    let issueId;
-    try {
-        issueId = new ObjectId(req.params.id);
-    } catch (error) {
-        res.status(422).json({ message: `Invalid issue ID format: ${error}` });
-        return;
-    }
-
-    db.collection('issues').find({ _id: issueId }).limit(1)
-    .next()
-    .then(issue => {
-        if (!issue) {
-            res.status(422).json({ message: `No such issue: ${issueId}` });
-        } else {
-            res.json(issue);
-        }
-    })
-    .catch(error => {
-        console.log(error);
-        res.status(500).json({ message: `Internal Server Error: ${error}` });
-    });
-});
-
 app.get('/api/issues', (req, res) => {
     const filter = {};
 
@@ -66,39 +42,6 @@ app.get('/api/issues', (req, res) => {
     .catch(error => {
         console.log(error);
         res.status(500).json({ message: `Internal Server Error: ${error}` });
-    });
-});
-
-app.put('/api/issues/:id', (req, res) => {
-    let issueId;
-    try {
-        issueId = new ObjectId(req.params.id);
-    } catch (error) {
-        res.status(422).json({ message: `Invalid issue ID format: ${error}` });
-        return;
-    }
-
-    const issue = req.body;
-    delete issue._id;
-
-    const err = Issue.validateIssue(issue);
-    if (err) {
-        res.status(422).json({ message: `Invalid request: ${err}` });
-        return;
-    }
-
-    db.collection('issues').update({ _id: issueId }, Issue.convertIssue(issue))
-    .then(() => {
-        db.collection('issues').find({ _id: issueId }).limit(1)
-        .next();
-    })
-    .then(savedIssue => {
-        res.json(savedIssue);
-    })
-    .catch(error => {
-        console.log(error);
-        res.status(500)
-        .json({ message: `Internal Server Error: ${error}` });
     });
 });
 
@@ -129,6 +72,66 @@ app.post('/api/issues', (req, res) => {
     });
 });
 
+app.get('/api/issues/:id', (req, res) => {
+    let issueId;
+    try {
+        issueId = new ObjectId(req.params.id);
+    } catch (error) {
+        res.status(422).json({ message: `Invalid issue ID format: ${error}` });
+        return;
+    }
+
+    db.collection('issues').find({ _id: issueId }).limit(1)
+    .next()
+    .then(issue => {
+        if (!issue) {
+            res.status(422).json({ message: `No such issue: ${issueId}` });
+        } else {
+            res.json(issue);
+        }
+    })
+    .catch(error => {
+        console.log(error);
+        res.status(500).json({ message: `Internal Server Error: ${error}` });
+    });
+});
+
+app.put('/api/issues/:id', (req, res) => {
+    let issueId;
+    try {
+        issueId = new ObjectId(req.params.id);
+    } catch (error) {
+        res.status(422).json({ message: `Invalid issue ID format: ${error}` });
+        return;
+    }
+
+    const issue = req.body;
+    delete issue._id;
+
+    const err = Issue.validateIssue(issue);
+    if (err) {
+        res.status(422).json({ message: `Invalid request: ${err}` });
+        return;
+    }
+
+    db.collection('issues').updateOne({ _id: issueId }, Issue.convertIssue(issue)).then(() =>
+        db.collection('issues').find({ _id: issueId }).limit(1)
+        .next()
+    )
+    .then(savedIssue => {
+        res.json(savedIssue);
+    })
+    .catch(error => {
+        console.log(error);
+        res.status(500)
+        .json({ message: `Internal Server Error: ${error}` });
+    });
+});
+
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve('static/index.html'));
+});
+
 MongoClient.connect('mongodb://localhost').then(connection => {
     dbConnection = connection;
     db = dbConnection.db('issuetracker');
@@ -139,8 +142,4 @@ MongoClient.connect('mongodb://localhost').then(connection => {
 })
 .catch(error => {
     console.log('ERROR:', error);
-});
-
-app.get('*', (req, res) => {
-    res.sendFile(path.resolve('static/index.html'));
 });

@@ -9,12 +9,13 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
         this.state = {
             issue: {
                 _id: '', title: '', status: '', owner: '', effort: null,
-                completionDate: null, created: '',
+                completionDate: null, created: null,
             },
             invalidFields: {},
         };
         this.onChange = this.onChange.bind(this);
         this.onValidityChange = this.onValidityChange.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
     }
 
     componentDidMount() {
@@ -44,16 +45,49 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
         this.setState({ issue });
     }
 
+    onSubmit(event) {
+        event.preventDefault();
+        if (Object.keys(this.state.invalidFields).length !== 0) {
+            return;
+        }
+
+        fetch(`/api/issues/${this.props.params.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(this.state.issue),
+        })
+        .then(response => {
+            console.log(response);
+            if (response.ok) {
+                response.json().then(updatedIssue => {
+                    updatedIssue.created = new Date(updatedIssue.created);
+                    if (updatedIssue.completionDate) {
+                        updatedIssue.completionDate = new Date(updatedIssue.completionDate);
+                    }
+                    this.setState({ issue: updatedIssue });
+                    alert('Updated issue successfully!');
+                });
+            } else {
+                response.json().then(error => {
+                    alert(`Failed to update issue: ${error.message}`);
+                });
+            }
+        })
+        .catch(err => {
+            alert(`Error in sending data to server: ${err.message}`);
+        });
+    }
+
     loadData() {
         fetch(`/api/issues/${this.props.params.id}`)
         .then(response => {
             if (response.ok) {
                 response.json()
                 .then(issue => {
-                    issue.created = new Date(issue.created).toDateString();
+                    issue.created = new Date(issue.created);
                     issue.completionDate = issue.completionDate != null ?
                       new Date(issue.completionDate) : null;
-                    issue.effort = issue.effort != null ? issue.effort.toString() : '';
+                    // issue.effort = issue.effort != null ? issue.effort.toString() : '';
                     this.setState({ issue });
                 });
             } else {
@@ -75,10 +109,10 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
             : (<div className="error">Please correct invalid fields before submitting.</div>);
         return (
             <div>
-                <form>
+                <form onSubmit={this.onSubmit}>
                     ID: {issue._id}
                     <br />
-                    Created: {issue.created}
+                    Created: {issue.created ? issue.created.toDateString() : ''}
                     <br />
                     Status:
                     &nbsp;<select name="status" value={issue.status} onChange={this.onChange}>
