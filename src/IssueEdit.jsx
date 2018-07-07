@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { FormGroup, FormControl, ControlLabel, ButtonToolbar, Button, Panel, Form, Col } from 'react-bootstrap';
+import { FormGroup, FormControl, ControlLabel, ButtonToolbar, Button, Panel, Form, Col, Alert } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 
 import NumInput from './NumInput.jsx';
@@ -15,7 +15,10 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
                 completionDate: null, created: null,
             },
             invalidFields: {},
+            showValidation: false,
         };
+        this.dismissValidation = this.dismissValidation.bind(this);
+        this.showValidation = this.showValidation.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onValidityChange = this.onValidityChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -50,6 +53,8 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
 
     onSubmit(event) {
         event.preventDefault();
+        this.showValidation();
+
         if (Object.keys(this.state.invalidFields).length !== 0) {
             return;
         }
@@ -60,7 +65,6 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
             body: JSON.stringify(this.state.issue),
         })
         .then(response => {
-            console.log(response);
             if (response.ok) {
                 response.json().then(updatedIssue => {
                     updatedIssue.created = new Date(updatedIssue.created);
@@ -79,6 +83,14 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
         .catch(err => {
             alert(`Error in sending data to server: ${err.message}`);
         });
+    }
+
+    showValidation() {
+        this.setState({ showingValidation: true });
+    }
+
+    dismissValidation() {
+        this.setState({ showingValidation: false });
     }
 
     loadData() {
@@ -107,9 +119,17 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
 
     render() {
         const issue = this.state.issue;
-        const validationMessage = Object.keys(this.state.invalidFields).length
-            === 0 ? null
-            : (<div className="error">Please correct invalid fields before submitting.</div>);
+        // const validationMessage = Object.keys(this.state.invalidFields).length
+        //     === 0 ? null
+        //     : (<div className="error">Please correct invalid fields before submitting.</div>);
+        let validationMessage = null;
+        if (Object.keys(this.state.invalidFields).length !== 0 && this.state.showingValidation) {
+            validationMessage = (
+                <Alert bsStyle="danger" onDismiss={this.dismissValidation}>
+                    Please correct invalid fields before submitting.
+                </Alert>
+            );
+        }
         return (
             <Panel header="Edit Issue">
                 <Form horizontal onSubmit={this.onSubmit}>
@@ -181,8 +201,10 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
                             </ButtonToolbar>
                         </Col>
                     </FormGroup>
+                    <FormGroup>
+                        <Col smOffset={3} sm={9}> {validationMessage} </Col>
+                    </FormGroup>
                 </Form>
-                {validationMessage}
             </Panel>
         );
     }
