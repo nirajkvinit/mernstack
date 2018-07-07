@@ -64,7 +64,6 @@ app.post('/api/issues', (req, res) => {
         .next()
     )
     .then(newissue => {
-        console.log(newissue);
         res.json(newissue);
     })
     .catch(error => {
