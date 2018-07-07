@@ -59,10 +59,10 @@ app.post('/api/issues', (req, res) => {
     }
 
     db.collection('issues').insertOne(Issue.cleanupIssue(newIssue))
-    .then(result => {
+    .then(result =>
         db.collection('issues').find({ _id: result.insertedId }).limit(1)
-        .next();
-    })
+        .next()
+    )
     .then(newissue => {
         res.json(newissue);
     })
@@ -125,6 +125,28 @@ app.put('/api/issues/:id', (req, res) => {
         console.log(error);
         res.status(500)
         .json({ message: `Internal Server Error: ${error}` });
+    });
+});
+
+app.delete('/api/issue/:id', (req, res) => {
+    let issueId;
+    try {
+        issueId = new ObjectId(req.params.id);        
+    } catch (error) {
+        res.status(422).json({ message: `Invalid issue ID format: ${error}` });
+        return;
+    }
+
+    db.collection('issues').deleteOne({ _id: issueId }).then((deleteResult) => {
+        if (deleteResult.result.n === 1) {
+            res.json( { status: 'OK'});
+        } else {
+            res.json({ status: 'Warning: Object not found' });
+        }
+    })
+    .catch(error => {
+        console.log(error);
+        res.status(500).json({ message: `Internal Server Error: ${error}` });
     });
 });
 

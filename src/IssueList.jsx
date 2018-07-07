@@ -1,30 +1,48 @@
 import React from 'react';
 import 'whatwg-fetch';
 import { Link } from 'react-router';
+import { Button, Glyphicon, Table, Panel } from 'react-bootstrap';
 
-import IssueAdd from './IssueAdd.jsx';
+//import IssueAdd from './IssueAdd.jsx';
 import IssueFilter from './IssueFilter.jsx';
+import Toast from './Toast.jsx';
 
-const IssueRow = (props) => (
-    <tr>
-        <td>
-            <Link to={`/issues/${props.issue._id}`}>
-                {props.issue._id.substr(-4)}
-            </Link>
-        </td>
-        <td>{props.issue.status}</td>
-        <td>{props.issue.owner}</td>
-        <td>{props.issue.created.toDateString()}</td>
-        <td>{props.issue.effort}</td>
-        <td>{props.issue.completionDate ? props.issue.completionDate.toDateString() : ''}</td>
-        <td>{props.issue.title}</td>
-    </tr>
-);
+const IssueRow = (props) => {
+    function onDeleteClick() {
+        props.deleteIssue(props.issue._id);
+    }
+
+    return (
+        <tr>
+            <td>
+                <Link to={`/issues/${props.issue._id}`}>
+                    {props.issue._id.substr(-4)}
+                </Link>
+            </td>
+            <td>{props.issue.status}</td>
+            <td>{props.issue.owner}</td>
+            <td>{props.issue.created.toDateString()}</td>
+            <td>{props.issue.effort}</td>
+            <td>{props.issue.completionDate ? props.issue.completionDate.toDateString() : ''}</td>
+            <td>{props.issue.title}</td>
+            <td>
+                <Button bsSize="xsmall" onClick={onDeleteClick}><Glyphicon glyph="trash" /></Button>
+            </td>
+        </tr>
+    );
+};
+
+IssueRow.propTypes = {
+    issue: React.PropTypes.object.isRequired,
+    deleteIssue: React.PropTypes.func.isRequired,
+};
 
 function IssueTable(props) {
-    const issueRows = props.issues.map(issue => <IssueRow key={issue._id} issue={issue} />);
+    const issueRows = props.issues.map(issue =>
+        <IssueRow key={issue._id} issue={issue} deleteIssue={props.deleteIssue} />);
+
     return (
-        <table className="bordered-table">
+        <Table bordered condensed hover responsive>
             <thead>
                 <tr>
                     <th>Id</th>
@@ -34,19 +52,33 @@ function IssueTable(props) {
                     <th>Effort</th>
                     <th>Completion Date</th>
                     <th>Title</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>{issueRows}</tbody>
-        </table>
+        </Table>
     );
 }
+
+IssueTable.propTypes = {
+    issues: React.PropTypes.array.isRequired,
+    deleteIssue: React.PropTypes.func.isRequired,
+};
 
 export default class IssueList extends React.Component {
     constructor() {
         super();
-        this.state = { issues: [] };
-        this.createIssue = this.createIssue.bind(this);
+        this.state = {
+            issues: [],
+            toastVisible: false,
+            toastMessage: '',
+            toastType: 'success',
+        };
+        //this.createIssue = this.createIssue.bind(this);
         this.setFilter = this.setFilter.bind(this);
+        this.deleteIssue = this.deleteIssue.bind(this);        
+        this.showError = this.showError.bind(this);
+        this.dismissToast = this.dismissToast.bind(this);
     }
 
     componentDidMount() {
@@ -69,6 +101,18 @@ export default class IssueList extends React.Component {
         this.props.router.push({ pathname: this.props.location.pathname, query });
     }
 
+    showError(message) {
+        this.setState({
+            toastVisible: true,
+            toastMessage: message,
+            toastType: 'danger',
+        });
+    }
+
+    dismissToast() {
+        this.setState({ toastVisible: false });
+    }
+
     loadData() {
         fetch(`/api/issues${this.props.location.search}`)
         .then(response => {
@@ -87,16 +131,16 @@ export default class IssueList extends React.Component {
             } else {
                 response.json()
                 .then(error => {
-                    alert(`Failed to fetch issues: ${error.message}`);
+                    this.showError(`Failed to fetch issues: ${error.message}`);
                 });
             }
         })
         .catch(err => {
-            alert('Error in fetching data from server: ', err);
+            this.showError('Error in fetching data from server: ', err);
         });
     }
 
-    createIssue(newIssue) {
+    /*createIssue(newIssue) {
         const stringifiedIssue = JSON.stringify(newIssue);
 
         fetch('/api/issues', {
@@ -112,30 +156,44 @@ export default class IssueList extends React.Component {
                     if (updatedIssue.completionDate) {
                         updatedIssue.completionDate = new Date(updatedIssue.completionDate);
                     }
-                    // console.log(updatedIssue);
                     const newIssues = this.state.issues.concat(updatedIssue);
                     this.setState({ issues: newIssues });
                 });
             } else {
                 response.json()
                 .then(error => {
-                    alert(`Failed to add issue ${error.message}`);
+                    this.showError(`Failed to add issue ${error.message}`);
                 });
             }
         })
         .catch(err => {
-            console.log(`Error in sending data to server: ${err.message}`);
+            this.showError(`Error in sending data to server: ${err.message}`);
+        });
+    }*/
+
+    deleteIssue(id) {
+        fetch(`/api/issue/${id}`, { method: 'DELETE' }).then(response => {
+            if (!response.ok) {
+                this.showError('Failed to delete issue');
+            } else {
+                this.loadData();
+            }
         });
     }
 
     render() {
         return (
             <div>
-                <IssueFilter setFilter={this.setFilter} initFilter={this.props.location.query} />
-                <hr />
-                <IssueTable issues={this.state.issues} />
-                <hr />
-                <IssueAdd createIssue={this.createIssue} />
+                <Panel collapsible header="Filter">
+                    <IssueFilter setFilter={this.setFilter} initFilter={this.props.location.query} />
+                </Panel>
+                <IssueTable issues={this.state.issues} deleteIssue={this.deleteIssue} />
+                <Toast
+                    showing={this.state.toastVisible}
+                    message={this.state.toastMessage}
+                    onDismiss={this.dismissToast}
+                    bsStyle={this.state.toastType}
+                />
             </div>
         );
     }
