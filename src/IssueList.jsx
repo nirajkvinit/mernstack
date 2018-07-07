@@ -3,7 +3,7 @@ import 'whatwg-fetch';
 import { Link } from 'react-router';
 import { Button, Glyphicon, Table, Panel } from 'react-bootstrap';
 
-import IssueAdd from './IssueAdd.jsx';
+//import IssueAdd from './IssueAdd.jsx';
 import IssueFilter from './IssueFilter.jsx';
 import Toast from './Toast.jsx';
 
@@ -74,7 +74,7 @@ export default class IssueList extends React.Component {
             toastMessage: '',
             toastType: 'success',
         };
-        this.createIssue = this.createIssue.bind(this);
+        //this.createIssue = this.createIssue.bind(this);
         this.setFilter = this.setFilter.bind(this);
         this.deleteIssue = this.deleteIssue.bind(this);        
         this.showError = this.showError.bind(this);
@@ -140,7 +140,7 @@ export default class IssueList extends React.Component {
         });
     }
 
-    createIssue(newIssue) {
+    /*createIssue(newIssue) {
         const stringifiedIssue = JSON.stringify(newIssue);
 
         fetch('/api/issues', {
@@ -169,7 +169,7 @@ export default class IssueList extends React.Component {
         .catch(err => {
             this.showError(`Error in sending data to server: ${err.message}`);
         });
-    }
+    }*/
 
     deleteIssue(id) {
         fetch(`/api/issue/${id}`, { method: 'DELETE' }).then(response => {
@@ -188,7 +188,6 @@ export default class IssueList extends React.Component {
                     <IssueFilter setFilter={this.setFilter} initFilter={this.props.location.query} />
                 </Panel>
                 <IssueTable issues={this.state.issues} deleteIssue={this.deleteIssue} />
-                <IssueAdd createIssue={this.createIssue} />
                 <Toast
                     showing={this.state.toastVisible}
                     message={this.state.toastMessage}
