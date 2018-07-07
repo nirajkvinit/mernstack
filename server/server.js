@@ -59,11 +59,12 @@ app.post('/api/issues', (req, res) => {
     }
 
     db.collection('issues').insertOne(Issue.cleanupIssue(newIssue))
-    .then(result => {
+    .then(result =>
         db.collection('issues').find({ _id: result.insertedId }).limit(1)
-        .next();
-    })
+        .next()
+    )
     .then(newissue => {
+        console.log(newissue);
         res.json(newissue);
     })
     .catch(error => {

@@ -14,7 +14,7 @@ const App = (props) => (
         <div className="header">
             <h1>Issue Tracker</h1>
         </div>
-        <div className="contents">
+        <div className="container-fluid">
             {props.children}
         </div>
         <div className="footer">
