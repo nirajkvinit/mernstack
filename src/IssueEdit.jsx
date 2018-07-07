@@ -5,6 +5,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 
 import NumInput from './NumInput.jsx';
 import DateInput from './DateInput.jsx';
+import Toast from './Toast.jsx';;
 
 export default class IssueEdit extends React.Component { // eslint-disable-line
     constructor() {
@@ -15,10 +16,16 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
                 completionDate: null, created: null,
             },
             invalidFields: {},
-            showValidation: false,
+            showingValidation: false,
+            toastVisible: false,
+            toastMessage: '',
+            toastType: 'success',
         };
         this.dismissValidation = this.dismissValidation.bind(this);
         this.showValidation = this.showValidation.bind(this);
+        this.showSuccess = this.showSuccess.bind(this);
+        this.showError = this.showError.bind(this);
+        this.dismissToast = this.dismissToast.bind(this);
         this.onChange = this.onChange.bind(this);
         this.onValidityChange = this.onValidityChange.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
@@ -72,16 +79,16 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
                         updatedIssue.completionDate = new Date(updatedIssue.completionDate);
                     }
                     this.setState({ issue: updatedIssue });
-                    alert('Updated issue successfully!');
+                    this.showSuccess('Updated issue successfully!');
                 });
             } else {
                 response.json().then(error => {
-                    alert(`Failed to update issue: ${error.message}`);
+                    this.showError(`Failed to update issue: ${error.message}`);
                 });
             }
         })
         .catch(err => {
-            alert(`Error in sending data to server: ${err.message}`);
+            this.showError(`Error in sending data to server: ${err.message}`);
         });
     }
 
@@ -102,26 +109,34 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
                     issue.created = new Date(issue.created);
                     issue.completionDate = issue.completionDate != null ?
                       new Date(issue.completionDate) : null;
-                    // issue.effort = issue.effort != null ? issue.effort.toString() : '';
                     this.setState({ issue });
                 });
             } else {
                 response.json()
                 .then(error => {
-                    alert(`Failed to fetch issue: ${error.message}`);
+                    this.showError(`Failed to fetch issue: ${error.message}`);
                 });
             }
         })
         .catch(err => {
-            alert(`Error in fetching data from server: ${err.message}`);
+            this.showError(`Error in fetching data from server: ${err.message}`);
         });
+    }
+
+    showSuccess(message) {
+        this.setState({ toastVisible: true, toastMessage: message, toastType: 'success' });
+    }
+
+    showError(message) {
+        this.setState({ toastVisible: true, toastMessage: message, toastType: 'danger' });
+    }
+
+    dismissToast() {
+        this.setState({ toastVisible: false });
     }
 
     render() {
         const issue = this.state.issue;
-        // const validationMessage = Object.keys(this.state.invalidFields).length
-        //     === 0 ? null
-        //     : (<div className="error">Please correct invalid fields before submitting.</div>);
         let validationMessage = null;
         if (Object.keys(this.state.invalidFields).length !== 0 && this.state.showingValidation) {
             validationMessage = (
@@ -205,6 +220,12 @@ export default class IssueEdit extends React.Component { // eslint-disable-line
                         <Col smOffset={3} sm={9}> {validationMessage} </Col>
                     </FormGroup>
                 </Form>
+                <Toast
+                    showing={this.state.toastVisible}
+                    message={this.state.toastMessage}
+                    onDismiss={this.dismissToast}
+                    bsStyle={this.state.toastType}
+                />
             </Panel>
         );
     }
